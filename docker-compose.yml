@@ -1,0 +1,13 @@
+version: "3"
+services:
+    php:
+        build:
+            context: ./docker
+            dockerfile: php/Php.Dockerfile
+        container_name: 'php-fpm_parser_yt'
+        user: www-data
+        working_dir: /var/www/app
+        volumes:
+            - ./:/var/www/app
+            - ./docker/php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+            - ./docker/php/php.ini:/usr/local/etc/php/conf.d/php.ini
