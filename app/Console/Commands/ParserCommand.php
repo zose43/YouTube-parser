@@ -8,8 +8,9 @@ use App\Exceptions\HttpException;
 use App\Console\Parsers\HttpParser;
 use App\Console\Storages\GoogleStorage;
 use GuzzleHttp\Exception\GuzzleException;
+use Symfony\Component\Console\Command\SignalableCommandInterface;
 
-class ParserCommand extends Command
+class ParserCommand extends Command implements SignalableCommandInterface
 {
     protected $signature = 'parser:start';
     protected $description = 'Get data from youtube and save it to google spreadsheet';
@@ -52,4 +53,16 @@ class ParserCommand extends Command
         $this->output->info( "Success save data to $tableInfo->title table. All elements: $addCounts. Check table: $tableInfo->url" );
     }
 
+    public function getSubscribedSignals(): array
+    {
+        return [ SIGINT ];
+    }
+
+    public function handleSignal( int $signal ): void
+    {
+        if ( $signal === SIGINT ) {
+            $this->output->error( 'Process is interrupted' );
+            exit();
+        }
+    }
 }

@@ -12,8 +12,8 @@ RUN apt-get update && apt-get install -y \
     git \
     unzip \
     vim \
-    && pecl install xdebug \
-    && docker-php-ext-enable xdebug \
+    && install-php-extensions pcntl xdebug \
+    && docker-php-ext-enable xdebug pcntl \
     && docker-php-source delete \
     && apt-get autoremove -y \
     && apt-get autoclean -y \
