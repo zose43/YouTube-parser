@@ -14,7 +14,7 @@ class GoogleStorage extends Storage
 {
     private const CREDENTIALS = __DIR__ . '/credentials.json';
 
-    private Google_Service_Sheets $service;
+    private static Google_Service_Sheets $service;
     private Google_Service_Sheets_ClearValuesRequest $clear;
 
     /**
@@ -38,20 +38,25 @@ class GoogleStorage extends Storage
             die( $e->__toString() );
         }
 
-        $this->service = new Google_Service_Sheets( $client );
+        self::$service = new Google_Service_Sheets( $client );
         $this->clear = new Google_Service_Sheets_ClearValuesRequest();
         $this->cleanAll();
     }
 
+    public static function getService(): Google_Service_Sheets
+    {
+        return self::$service;
+    }
+
     protected function cleanAll(): void
     {
-        $this->service->spreadsheets_values->clear( $this->spreadsheetId, $this->rangeId, $this->clear );
+        self::$service->spreadsheets_values->clear( $this->spreadsheetId, $this->rangeId, $this->clear );
     }
 
     public function add( array $data ): int
     {
         $body = new Google_Service_Sheets_ValueRange( [ 'values' => $data ] );
-        $this->service->spreadsheets_values->update( $this->spreadsheetId, $this->rangeId, $body, [ 'valueInputOption' => 'USER_ENTERED' ] );
+        self::$service->spreadsheets_values->update( $this->spreadsheetId, $this->rangeId, $body, [ 'valueInputOption' => 'USER_ENTERED' ] );
 
         return $body->count() - 2;
     }
@@ -59,9 +64,9 @@ class GoogleStorage extends Storage
     public function getTableInfo(): Collection
     {
         $tableInfo = Collection::make();
-        $tableInfo->title = $this->service->spreadsheets->get( $this->spreadsheetId )->getProperties()->getTitle();
-        $tableInfo->locale = $this->service->spreadsheets->get( $this->spreadsheetId )->getProperties()->getLocale();
-        $tableInfo->url = $this->service->spreadsheets->get( $this->spreadsheetId )->getSpreadsheetUrl();
+        $tableInfo->title = self::$service->spreadsheets->get( $this->spreadsheetId )->getProperties()->getTitle();
+        $tableInfo->locale = self::$service->spreadsheets->get( $this->spreadsheetId )->getProperties()->getLocale();
+        $tableInfo->url = self::$service->spreadsheets->get( $this->spreadsheetId )->getSpreadsheetUrl();
 
         return $tableInfo;
     }

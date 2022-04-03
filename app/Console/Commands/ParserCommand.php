@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Exception;
+use RuntimeException;
 use Illuminate\Console\Command;
 use App\Exceptions\HttpException;
 use App\Console\Parsers\HttpParser;
@@ -28,7 +29,7 @@ class ParserCommand extends Command implements SignalableCommandInterface
         $bar->start();
 
         if ( preg_replace( '/\s{2,}/', '', $word ) === '' ) {
-            die( throw new Exception( "Your phrase, table list or spreadsheet id is empty. \n All inputs: [Phrase: $word, Table list: $rangeId, Spreadsheet id: $spreadsheetId]" ) );
+            throw new RuntimeException( "Your phrase, table list or spreadsheet id is empty. \n All inputs: [Phrase: $word, Table list: $rangeId, Spreadsheet id: $spreadsheetId]" );
         }
 
         $word = str_replace( ' ', '+', $word );
