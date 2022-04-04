@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use JsonException;
 use JetBrains\PhpStorm\Pure;
+use Illuminate\Support\Facades\Log;
 
 class JsonProcessException extends JsonException
 {
@@ -17,5 +18,10 @@ class JsonProcessException extends JsonException
     public function getWrongJson(): array
     {
         return $this->json;
+    }
+
+    public function report(): void
+    {
+        Log::channel( 'parsers' )->error( $this->message, [ 'json' => $this->getWrongJson() ] );
     }
 }

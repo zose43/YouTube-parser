@@ -7,6 +7,7 @@ use RuntimeException;
 use Illuminate\Console\Command;
 use App\Exceptions\HttpException;
 use App\Console\Parsers\HttpParser;
+use Illuminate\Support\Facades\Log;
 use App\Console\Storages\GoogleStorage;
 use GuzzleHttp\Exception\GuzzleException;
 use Symfony\Component\Console\Command\SignalableCommandInterface;
@@ -29,6 +30,11 @@ class ParserCommand extends Command implements SignalableCommandInterface
         $bar->start();
 
         if ( preg_replace( '/\s{2,}/', '', $word ) === '' ) {
+            Log::channel( 'parsers' )->error( 'Parser Started with empty phrase', [
+                'phrase' => $word,
+                'rangeId' => $rangeId,
+                'spreadsheet id' => $spreadsheetId,
+            ] );
             throw new RuntimeException( "Your phrase, table list or spreadsheet id is empty. \n All inputs: [Phrase: $word, Table list: $rangeId, Spreadsheet id: $spreadsheetId]" );
         }
 
@@ -51,6 +57,11 @@ class ParserCommand extends Command implements SignalableCommandInterface
         $tableInfo = $googleDriver->getTableInfo();
 
         $bar->finish();
+        Log::channel( 'parsers' )->info( 'Success', [
+            'table' => $tableInfo->title,
+            'count elements' => $addCounts,
+            'url' => $tableInfo->url,
+        ] );
         $this->output->info( "Success save data to $tableInfo->title table. All elements: $addCounts. Check table: $tableInfo->url" );
     }
 
@@ -62,6 +73,7 @@ class ParserCommand extends Command implements SignalableCommandInterface
     public function handleSignal( int $signal ): void
     {
         if ( $signal === SIGINT ) {
+            Log::channel( 'parsers' )->alert( 'Process is interrupted' );
             $this->output->error( 'Process is interrupted' );
             exit();
         }

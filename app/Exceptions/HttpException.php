@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Exception;
 use JetBrains\PhpStorm\Pure;
+use Illuminate\Support\Facades\Log;
 
 class HttpException extends Exception
 {
@@ -17,5 +18,10 @@ class HttpException extends Exception
     public function getInvalidUrl(): string
     {
         return $this->url;
+    }
+
+    public function report(): void
+    {
+        Log::channel( 'parsers' )->error( $this->message, [ 'invalidUrl' => $this->getInvalidUrl() ] );
     }
 }
